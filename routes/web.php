@@ -8,6 +8,16 @@ Route::get('/', function () {
 });
 
 
+
+
+use App\Http\Controllers\PageController;
+
+Route::get('/page/{id}', [PageController::class, 'show'])->name('page.show');
+
+
+
+
+
 // Page Builder Routes
 Route::get('/admin/page-builder/{id}/edit', [PageBuilderController::class, 'edit'])
     ->name('admin.page-builder.edit');
