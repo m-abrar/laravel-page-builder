@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->id();
-            $table->text('html');
+            $table->longText('html')->change();
             $table->text('css')->nullable();
             $table->timestamps();
         });
