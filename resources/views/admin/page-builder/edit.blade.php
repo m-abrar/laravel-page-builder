@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Builder</title>
     <link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+    <style id="dynamic-css">
+        {!! $page->css !!}
+    </style>
 </head>
 <body>
 
     <button id="savePage">Save Page</button>
-    <div id="gjs"></div>
+    <div id="gjs">{!! $page->html !!}</div>
 
-    <!-- Pass Laravel variables to JavaScript -->
     <script>
         var csrfToken = "{{ csrf_token() }}";
         var savePageUrl = "{{ route('admin.page-builder.save', ['id' => $page->id]) }}";
-        var pageHtml = `{!! addslashes($page->html) !!}`;
-        var pageCss = `{!! addslashes($page->css) !!}`;
+        var pageCSS = `{!! $page->css !!}`;
     </script>
 
     <script src="https://unpkg.com/grapesjs"></script>
@@ -26,18 +27,36 @@
         var editor = grapesjs.init({
             container: '#gjs',
             height: '100vh',
-            fromElement: false,  // Prevent overriding HTML in <div id="gjs">
+            fromElement: true,
             storageManager: false,
             plugins: ['gjs-blocks-basic'],
             pluginsOpts: { 'gjs-blocks-basic': {} },
         });
 
-        // Load saved HTML & CSS
-        editor.setComponents(pageHtml);
-        editor.setStyle(pageCss);
+        // APPLY SAVED CSS TO GRAPESJS
+        if (pageCSS) {
+            editor.setStyle(pageCSS); // Load saved styles into editor
+        }
 
-        // Save Page to Database
-        document.getElementById('savePage').addEventListener('click', function() {
+        editor.BlockManager.add('dynamic-testimonial', {
+            label: 'Dynamic Testimonial',
+            category: 'Widgets',
+            content: `[[widget-testimonial]]` // Placeholder for dynamic testimonial
+        });
+
+
+    </script>
+
+    {{-- Load Widgets --}}
+    @include('admin.page-builder.widgets.testimonial-widget')
+    @include('admin.page-builder.widgets.cta-widget')
+    @include('admin.page-builder.widgets.feature-box-widget')
+    @include('admin.page-builder.widgets.hero-section.load')
+
+
+    <script>
+        // SAVE PAGE TO DATABASE
+        document.getElementById('savePage').addEventListener('click', function () {
             var html = editor.getHtml();
             var css = editor.getCss();
 
